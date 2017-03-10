@@ -23,4 +23,24 @@ function login_page_redirection()
 }
 add_action('login_head', 'login_page_redirection');
 
+
+
+// Login from woocommerce front end and redirect to admin panel
+
+function wc_custom_user_redirect( $redirect, $user ) {
+	// Get the first of all the roles assigned to the user
+	$role = $user->roles[0];
+	$dashboard = admin_url();
+	$myaccount = get_permalink( wc_get_page_id( 'myaccount' ) );
+	if( $role == 'administrator' || $role == 'shop_manager' ) {
+		$redirect = $dashboard; 
+	} elseif ( $role == 'customer' || $role == 'subscriber' ) {
+		$redirect = $myaccount;
+	}else {
+		$redirect = wp_get_referer() ? wp_get_referer() : home_url();
+	}
+	return $redirect;
+}
+add_filter( 'woocommerce_login_redirect', 'wc_custom_user_redirect', 10, 2 );
+
 ?>
